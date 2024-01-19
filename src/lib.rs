@@ -10,6 +10,7 @@ use core::{
 };
 use cortex_m::interrupt::Mutex;
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
+use embassy_time::Duration;
 use linked_list_allocator::Heap;
 
 mod at;
@@ -393,6 +394,9 @@ impl RuntimeState {
             return Err(Error::TooManyLteLinks);
         }
 
+        #[cfg(feature = "defmt")]
+        defmt::debug!("LTE activate. No of links: {} +1",state.1 );
+
         if state.1 == 0 {
             ModemActivation::Lte.act_on_modem().await?;
         }
@@ -409,13 +413,24 @@ impl RuntimeState {
             panic!("Can't deactivate an inactive lte");
         }
 
+        #[cfg(feature = "defmt")]
+        defmt::debug!("LTE deactivate. No of links: {} -1",state.1 );
+
+        embassy_time::Timer::after(Duration::from_millis(50)).await;
+
         if state.1 == 1 {
             if state.0 {
+                #[cfg(feature = "defmt")]
+                defmt::debug!("A No more LTE links, turning off LTE only " );
                 ModemDeactivation::OnlyLte
             } else {
+                #[cfg(feature = "defmt")]
+                defmt::debug!("A No more LTE links, turning off everything " );
                 ModemDeactivation::Everything
             }
         } else {
+            #[cfg(feature = "defmt")]
+            defmt::debug!("A There are links left, do nothing with modem. " );
             ModemDeactivation::Nothing
         }
         .act_on_modem()
@@ -436,13 +451,22 @@ impl RuntimeState {
             panic!("Can't deactivate an inactive lte");
         }
 
+        #[cfg(feature = "defmt")]
+        defmt::debug!("LTE deactivate block. No of links: {} -1",state.1 );
+
         if state.1 == 1 {
             if state.0 {
+                #[cfg(feature = "defmt")]
+                defmt::debug!("B No more LTE links, turning off LTE only " );
                 ModemDeactivation::OnlyLte
             } else {
+                #[cfg(feature = "defmt")]
+                defmt::debug!("B No more LTE links, turning off everything " );
                 ModemDeactivation::Everything
             }
         } else {
+            #[cfg(feature = "defmt")]
+            defmt::debug!("B There are links left, do nothing with modem. " );
             ModemDeactivation::Nothing
         }
         .act_on_modem_blocking()?;

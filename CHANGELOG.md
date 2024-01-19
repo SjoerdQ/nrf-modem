@@ -1,5 +1,8 @@
 # Changelog
 
+- Updated embassy-sync from `0.3.0` to `0.5.0`
+- Added small delay before checking if the LTE modem can be turned off in the async deactivate function to prevent a race condition where the modem would be turned off to quickly (resulting in WriteStreamTimeout and/or NrfError( -22) ) 
+  
 ## 0.4.1 (2023-09-22)
 
 - Added a new modem init function where the memory layout can be manually specified

@@ -25,6 +25,7 @@ at-commands = "0.5.2"
 no-std-net = "0.6.0"
 critical-section = "1.1"
 embassy-sync = "0.5.0"
+embassy-time = "0.3.0"
 
 [features]
 default = []
